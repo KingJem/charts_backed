@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/4.8.0/echarts.min.js"></script>
+    <title>Title</title>
+
+</head>
+<body>
+
+
+<div style="height:500px;">
+    <div id="ec2" style="height: 98%;padding: 15px;"></div>
+</div>
+
+
+<script>
+    //https://echarts.apache.org/zh/option.html#toolbox.id
+    var dom2 = document.getElementById("ec2");
+    var myChart = echarts.init(dom2);
+    var data = null;
+    var levelx = null;
+    var leveltwo = null;
+
+    // 请求数据
+    function plot(legend, series) {
+        myChart.setOption({
+            title: {
+                text: 'test',
+                subtext: '饼图',
+                x: 'center',
+                textStyle: {
+                    color: '#78121311',
+                    fontStyle: 'normal',
+                    fontFamily: 'Microsoft YaHei',
+                    fontSize: 16
+                },
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: "{b} <br/>{c} : {d} %"      //a 系列名称，b 数据项名称，c 数值，d 百分比
+            },
+            legend: {
+                orient: 'vertical',
+                x: 'left',
+                data: legend,
+                textStyle: {
+                    fontWeight: 300,
+                    fontSize: 16,    //文字的字体大小
+                    color: '#000000'//文字的字体颜色
+                },
+
+            }, toolbox: {
+                show: true,
+                feature: {
+                    mark: {show: true},
+                    dataView: {show: true, readOnly: false},
+                    magicType: {
+                        show: true,
+                        type: ['pie', 'funnel'],
+                        option: {
+                            funnel: {
+                                x: '25%',
+                                width: '50%',
+                                funnelAlign: 'left',
+                                max: 1548
+                            }
+                        }
+                    },
+                    restore: {show: true},
+                    saveAsImage: {show: true},
+                    magicType: {
+                        type: ['line', 'bar', 'stack', 'tiled']
+                    }
+                }
+            },
+            calculable: true,
+            series: [
+                {
+                    type: 'pie',
+                    radius: '55%',//饼图的半径大小
+                    center: ['50%', '60%'],//饼图的位置
+                    data: series,
+
+
+                }]
+        });
+    };
+
+    $.get('http://127.0.0.1:8000/data/').done(function (data) {
+        data = $.parseJSON(data);
+        levelx = data.level1;
+        leveltwo = data.level2;
+
+
+        plot(levelx.legend, levelx.series.data);
+        myChart.on('click', function (params) {
+            // 在用户点击后控制台打印数据的名称
+
+            // 二级分类数据项
+            var name = params.name;
+            console.log(leveltwo);
+
+            console.log(name);
+            console.log(leveltwo[name].data);
+            plot(leveltwo[name].data.legend, leveltwo[name].data.series.data);
+
+        });
+
+
+    });
+
+
+</script>
+
+
+</body>
+</html>
